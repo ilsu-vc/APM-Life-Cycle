@@ -128,14 +128,14 @@ export function Dashboard() {
     <div className="space-y-8">
       {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card className="border-zinc-200 bg-white shadow-sm">
+        <Card className="border-navy-200 bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Total Revenue</CardTitle>
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Total Revenue</CardTitle>
             <TrendingUp className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight">₱{stats.totalRevenue.toLocaleString()}</div>
-            <p className="text-[10px] text-zinc-500 font-medium mt-1">
+            <div className="text-2xl font-bold tracking-tight text-navy-900">₱{stats.totalRevenue.toLocaleString()}</div>
+            <p className="text-[10px] text-navy-500 font-medium mt-1">
               <span className="text-emerald-500 flex items-center gap-0.5 inline-flex">
                 <ArrowUpRight className="h-3 w-3" /> 12%
               </span> from last month
@@ -143,40 +143,40 @@ export function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-200 bg-white shadow-sm">
+        <Card className="border-navy-200 bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Active Orders</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-zinc-400" />
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Active Orders</CardTitle>
+            <ShoppingCart className="h-4 w-4 text-gold-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold tracking-tight">{stats.activeOrders}</div>
-            <p className="text-[10px] text-zinc-500 font-medium mt-1">
+            <div className="text-2xl font-bold tracking-tight text-navy-900">{stats.activeOrders}</div>
+            <p className="text-[10px] text-navy-500 font-medium mt-1">
               Currently processing in queue
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-200 bg-white shadow-sm">
+        <Card className="border-navy-200 bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">SLA Breaches</CardTitle>
-            <Clock className={`h-4 w-4 ${stats.slaBreaches > 0 ? 'text-red-500 animate-pulse' : 'text-zinc-400'}`} />
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-navy-500">SLA Breaches</CardTitle>
+            <Clock className={`h-4 w-4 ${stats.slaBreaches > 0 ? 'text-red-500 animate-pulse' : 'text-navy-400'}`} />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tracking-tight text-red-600">{stats.slaBreaches}</div>
-            <p className="text-[10px] text-zinc-500 font-medium mt-1">
+            <p className="text-[10px] text-navy-500 font-medium mt-1">
               Fulfillment delays identified
             </p>
           </CardContent>
         </Card>
 
-        <Card className="border-zinc-200 bg-white shadow-sm">
+        <Card className="border-navy-200 bg-white shadow-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">Low Stock SKU</CardTitle>
+            <CardTitle className="text-[10px] font-bold uppercase tracking-widest text-navy-500">Low Stock SKU</CardTitle>
             <Package className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold tracking-tight text-amber-600">{lowStockProducts.length}</div>
-            <p className="text-[10px] text-zinc-500 font-medium mt-1">
+            <p className="text-[10px] text-navy-500 font-medium mt-1">
               Items below reorder point
             </p>
           </CardContent>
@@ -185,41 +185,41 @@ export function Dashboard() {
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         {/* Sales Chart */}
-        <Card className="lg:col-span-4 border-zinc-200 shadow-sm overflow-hidden">
+        <Card className="lg:col-span-4 border-navy-200 shadow-sm overflow-hidden">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold">Weekly Sales Analytics</CardTitle>
-            <CardDescription className="text-xs">B2B Order volume over the last 7 days</CardDescription>
+            <CardTitle className="text-sm font-semibold text-navy-900">Weekly Sales Analytics</CardTitle>
+            <CardDescription className="text-xs text-navy-500">B2B Order volume over the last 7 days</CardDescription>
           </CardHeader>
           <CardContent className="h-[240px] px-2 overflow-hidden">
             <ResponsiveContainer width="100%" height={220}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#18181b" stopOpacity={0.1}/>
-                    <stop offset="95%" stopColor="#18181b" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#e8b608" stopOpacity={0.15}/>
+                    <stop offset="95%" stopColor="#e8b608" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
                 <XAxis 
                   dataKey="name" 
                   axisLine={false} 
                   tickLine={false} 
-                  tick={{ fontSize: 10, fill: '#71717a' }} 
+                  tick={{ fontSize: 10, fill: '#4a6a9e' }} 
                 />
                 <YAxis hide />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#18181b', 
+                    backgroundColor: '#1c2536', 
                     border: 'none', 
                     borderRadius: '8px',
-                    color: '#fff',
+                    color: '#f0c020',
                     fontSize: '12px'
                   }}
-                  itemStyle={{ color: '#fff' }}
+                  itemStyle={{ color: '#f0c020' }}
                 />
                 <Area 
                   type="monotone" 
                   dataKey="sales" 
-                  stroke="#18181b" 
+                  stroke="#e8b608" 
                   strokeWidth={2}
                   fillOpacity={1} 
                   fill="url(#colorSales)" 
@@ -230,10 +230,10 @@ export function Dashboard() {
         </Card>
 
         {/* Recent Orders List */}
-        <Card className="lg:col-span-3 border-zinc-200 shadow-sm">
+        <Card className="lg:col-span-3 border-navy-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="text-sm font-semibold">Active Pipeline</CardTitle>
-            <CardDescription className="text-xs">Live order status monitoring</CardDescription>
+            <CardTitle className="text-sm font-semibold text-navy-900">Active Pipeline</CardTitle>
+            <CardDescription className="text-xs text-navy-500">Live order status monitoring</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -245,12 +245,12 @@ export function Dashboard() {
                     'bg-emerald-500'
                   }`} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-xs font-semibold truncate text-zinc-900">{order.clientName}</p>
-                    <p className="text-[10px] text-zinc-500 uppercase tracking-tighter">
+                    <p className="text-xs font-semibold truncate text-navy-900">{order.clientName}</p>
+                    <p className="text-[10px] text-navy-500 uppercase tracking-tighter">
                       {order.orderNumber} • {order.deliveryRegion}
                     </p>
                   </div>
-                  <Badge variant="outline" className="text-[10px] font-bold px-1.5 h-5 bg-zinc-50 border-zinc-200">
+                  <Badge variant="outline" className="text-[10px] font-bold px-1.5 h-5 bg-navy-50 border-navy-200 text-navy-700">
                     ₱{order.totalAmount.toLocaleString()}
                   </Badge>
                 </div>
@@ -274,12 +274,12 @@ export function Dashboard() {
               {lowStockProducts.slice(0, 6).map((item) => (
                 <div key={item.id} className="p-3 bg-white border border-amber-100 rounded-lg shadow-sm flex items-center justify-between">
                   <div className="min-w-0">
-                    <p className="text-xs font-bold truncate text-zinc-900">{item.name}</p>
-                    <p className="text-[10px] text-zinc-500">SKU: {item.sku}</p>
+                    <p className="text-xs font-bold truncate text-navy-900">{item.name}</p>
+                    <p className="text-[10px] text-navy-500">SKU: {item.sku}</p>
                   </div>
                   <div className="text-center ml-4">
                     <p className="text-xs font-black text-amber-600">REORDER</p>
-                    <p className="text-[10px] text-zinc-400 font-medium">Point: {item.reorderPoint}</p>
+                    <p className="text-[10px] text-navy-400 font-medium">Point: {item.reorderPoint}</p>
                   </div>
                 </div>
               ))}

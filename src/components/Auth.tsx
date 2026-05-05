@@ -47,30 +47,30 @@ export function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex items-center justify-center p-4 relative">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(24,24,27,1)_0%,rgba(9,9,11,1)_100%)]" />
+    <div className="min-h-screen bg-navy-950 flex items-center justify-center p-4 relative">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(28,37,54,1)_0%,rgba(20,28,40,1)_100%)]" />
       
       <Link to="/" className="absolute top-8 left-8 z-20">
-        <Button variant="ghost" className="text-zinc-500 hover:text-white gap-2 text-xs font-black uppercase tracking-[0.2em]">
+        <Button variant="ghost" className="text-navy-400 hover:text-gold-400 gap-2 text-xs font-black uppercase tracking-[0.2em]">
           <ArrowLeft className="w-4 h-4" /> Return to Home
         </Button>
       </Link>
       
-      <Card className="w-full max-w-md relative z-10 bg-zinc-900 border-zinc-800 text-white shadow-2xl overflow-hidden">
-        <div className="h-1 bg-zinc-800 w-full overflow-hidden">
-          {isLoading && <div className="h-full bg-white w-1/3 animate-[loading_1s_infinite_linear]" />}
+      <Card className="w-full max-w-md relative z-10 bg-navy-900 border-navy-800 text-white shadow-2xl overflow-hidden">
+        <div className="h-1 bg-navy-800 w-full overflow-hidden">
+          {isLoading && <div className="h-full bg-gold-500 w-1/3 animate-[loading_1s_infinite_linear]" />}
         </div>
         
         <CardHeader className="text-center space-y-1 pb-8">
           <div className="flex justify-center mb-4">
-            <div className="p-3 bg-white rounded-xl shadow-lg ring-4 ring-zinc-800/50">
-              <Warehouse className="w-10 h-10 text-black" />
+            <div className="p-3 bg-gold-500 rounded-xl shadow-lg ring-4 ring-gold-500/20">
+              <Warehouse className="w-10 h-10 text-navy-950" />
             </div>
           </div>
           <CardTitle className="text-2xl font-black uppercase tracking-tighter">
             {isResetMode ? 'Recover Identity' : isSignUp ? 'Node Registration' : 'System Access'}
           </CardTitle>
-          <CardDescription className="text-zinc-500 font-medium text-xs">
+          <CardDescription className="text-navy-400 font-medium text-xs">
             {isResetMode 
               ? 'Initiate credential reset protocol via communication node.' 
               : 'ITIL 4 Service Configuration Management Platform'}
@@ -80,9 +80,9 @@ export function Auth() {
         <CardContent className="space-y-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Communication Node (Email)</Label>
+              <Label htmlFor="email" className="text-[10px] font-black uppercase tracking-widest text-navy-400">Communication Node (Email)</Label>
               <div className="relative">
-                <Mail className="absolute left-3 top-3 w-4 h-4 text-zinc-600" />
+                <Mail className="absolute left-3 top-3 w-4 h-4 text-navy-500" />
                 <Input 
                   id="email" 
                   type="email" 
@@ -90,7 +90,7 @@ export function Auth() {
                   required 
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="bg-zinc-950 border-zinc-800 pl-10 h-11 text-sm rounded-xl focus-visible:ring-zinc-700 focus-visible:border-zinc-700 transition-all font-medium"
+                  className="bg-navy-950 border-navy-700 pl-10 h-11 text-sm rounded-xl focus-visible:ring-gold-500 focus-visible:border-gold-500 transition-all font-medium text-white"
                 />
               </div>
             </div>
@@ -98,19 +98,19 @@ export function Auth() {
             {!isResetMode && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-zinc-400">Security Key (Password)</Label>
+                  <Label htmlFor="password" className="text-[10px] font-black uppercase tracking-widest text-navy-400">Security Key (Password)</Label>
                   {!isSignUp && (
                     <button 
                       type="button"
                       onClick={toggleReset}
-                      className="text-[9px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors"
+                      className="text-[9px] font-black uppercase tracking-widest text-navy-500 hover:text-gold-400 transition-colors"
                     >
                       Forgot?
                     </button>
                   )}
                 </div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 w-4 h-4 text-zinc-600" />
+                  <Lock className="absolute left-3 top-3 w-4 h-4 text-navy-500" />
                   <Input 
                     id="password" 
                     type={showPassword ? 'text' : 'password'} 
@@ -118,12 +118,12 @@ export function Auth() {
                     required 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="bg-zinc-950 border-zinc-800 pl-10 pr-10 h-11 text-sm rounded-xl focus-visible:ring-zinc-700 focus-visible:border-zinc-700 transition-all font-mono"
+                    className="bg-navy-950 border-navy-700 pl-10 pr-10 h-11 text-sm rounded-xl focus-visible:ring-gold-500 focus-visible:border-gold-500 transition-all font-mono text-white"
                   />
                   <button 
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-zinc-600 hover:text-zinc-400 transition-colors"
+                    className="absolute right-3 top-3 text-navy-500 hover:text-navy-300 transition-colors"
                   >
                     {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -134,10 +134,10 @@ export function Auth() {
             <Button 
               type="submit" 
               disabled={isLoading}
-              className="w-full bg-white text-black hover:bg-zinc-200 h-12 text-xs font-black uppercase tracking-[0.1em] rounded-xl shadow-xl shadow-white/5 group"
+              className="w-full bg-gold-500 text-navy-950 hover:bg-gold-400 h-12 text-xs font-black uppercase tracking-[0.1em] rounded-xl shadow-xl shadow-gold-500/10 group"
             >
               {isLoading ? (
-                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-navy-950 border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   {isResetMode ? 'Send Reset Link' : isSignUp ? 'Provision Node' : 'Initialize Session'}
@@ -150,15 +150,15 @@ export function Auth() {
           {!isResetMode && (
             <>
               <div className="relative flex items-center py-2">
-                <Separator className="flex-grow bg-zinc-800" />
-                <span className="flex-shrink-0 px-4 text-[9px] font-black uppercase tracking-widest text-zinc-600">OR</span>
-                <Separator className="flex-grow bg-zinc-800" />
+                <Separator className="flex-grow bg-navy-700" />
+                <span className="flex-shrink-0 px-4 text-[9px] font-black uppercase tracking-widest text-navy-500">OR</span>
+                <Separator className="flex-grow bg-navy-700" />
               </div>
 
               <Button 
                 onClick={signIn}
                 variant="outline"
-                className="w-full bg-zinc-950 border-zinc-800 text-white hover:bg-zinc-800 h-12 text-xs font-black uppercase tracking-[0.1em] rounded-xl"
+                className="w-full bg-navy-950 border-navy-700 text-white hover:bg-navy-800 hover:border-gold-500/50 h-12 text-xs font-black uppercase tracking-[0.1em] rounded-xl"
               >
                 <div className="flex items-center gap-3">
                   <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -189,18 +189,18 @@ export function Auth() {
             <Button 
               variant="ghost" 
               onClick={toggleReset}
-              className="w-full text-zinc-500 hover:text-white text-[10px] font-black uppercase tracking-widest"
+              className="w-full text-navy-400 hover:text-gold-400 text-[10px] font-black uppercase tracking-widest"
             >
               <ArrowLeft className="w-3 h-3 mr-2" /> Back to Authentication
             </Button>
           )}
         </CardContent>
 
-        <CardFooter className="bg-zinc-950/50 border-t border-zinc-800 p-4 justify-center">
+        <CardFooter className="bg-navy-950/50 border-t border-navy-800 p-4 justify-center">
           {!isResetMode && (
             <button 
               onClick={toggleMode}
-              className="text-[10px] font-black uppercase tracking-widest text-zinc-500 hover:text-white transition-colors flex items-center gap-2"
+              className="text-[10px] font-black uppercase tracking-widest text-navy-400 hover:text-gold-400 transition-colors flex items-center gap-2"
             >
               {isSignUp ? (
                 <><LogIn className="w-3 h-3" /> Existing user? Log In</>
@@ -210,7 +210,7 @@ export function Auth() {
             </button>
           )}
           {isResetMode && (
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-zinc-600">
+            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-navy-500">
               <HelpCircle className="w-3 h-3" /> Tier 1 Support Required?
             </div>
           )}

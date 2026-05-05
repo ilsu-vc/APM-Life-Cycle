@@ -28,8 +28,8 @@ function ProtectedRoute({ children, allowedRoles, fallbackPath = "/orders" }: { 
   const { user, profile, loading } = useAuth();
   
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-      <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+    <div className="min-h-screen flex items-center justify-center bg-navy-950">
+      <div className="w-12 h-12 border-4 border-gold-500/20 border-t-gold-400 rounded-full animate-spin" />
     </div>
   );
   

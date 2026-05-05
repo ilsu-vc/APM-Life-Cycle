@@ -18,31 +18,31 @@ import { Button } from '@/components/ui/button';
 const STEPS = [
   {
     id: 'welcome',
-    title: 'Welcome to VMSPRO',
+    title: 'Welcome to ACTIVEPRO',
     description: 'The next generation of warehouse management and supply chain synchronization.',
-    icon: <Package className="w-12 h-12 text-zinc-900" />,
-    color: 'bg-zinc-100'
+    icon: <Package className="w-12 h-12 text-gold-500" />,
+    color: 'bg-navy-100'
   },
   {
     id: 'inventory',
     title: 'Multi-Hub Inventory',
     description: 'Track stock levels across unlimited global locations with millisecond precision.',
-    icon: <Warehouse className="w-12 h-12 text-zinc-900" />,
-    color: 'bg-zinc-100'
+    icon: <Warehouse className="w-12 h-12 text-gold-500" />,
+    color: 'bg-navy-100'
   },
   {
     id: 'finance',
     title: 'Financial Trajectories',
     description: 'Automated P&L ledgers and financial forecasting based on real-time order data.',
-    icon: <BarChart3 className="w-12 h-12 text-zinc-900" />,
-    color: 'bg-zinc-100'
+    icon: <BarChart3 className="w-12 h-12 text-gold-500" />,
+    color: 'bg-navy-100'
   },
   {
     id: 'dispatch',
     title: 'Verified Fulfillment',
     description: 'Use photo validation to ensure every order is dispatched with absolute proof.',
-    icon: <Truck className="w-12 h-12 text-zinc-900" />,
-    color: 'bg-zinc-100'
+    icon: <Truck className="w-12 h-12 text-gold-500" />,
+    color: 'bg-navy-100'
   }
 ];
 
@@ -69,13 +69,13 @@ export const Onboarding = () => {
   const step = STEPS[currentStep];
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col font-sans">
+    <div className="min-h-screen bg-navy-50 flex flex-col font-sans">
       {/* Progress Bar */}
-      <div className="fixed top-0 left-0 w-full h-1 bg-zinc-200">
+      <div className="fixed top-0 left-0 w-full h-1 bg-navy-200">
         <motion.div 
           initial={{ width: '0%' }}
           animate={{ width: `${((currentStep + 1) / STEPS.length) * 100}%` }}
-          className="h-full bg-zinc-900"
+          className="h-full bg-gold-500"
         />
       </div>
 
@@ -89,22 +89,22 @@ export const Onboarding = () => {
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="max-w-xl w-full text-center"
           >
-            <div className={`w-24 h-24 ${step.color} rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-sm border border-zinc-200/50`}>
+            <div className={`w-24 h-24 ${step.color} rounded-[2rem] flex items-center justify-center mx-auto mb-10 shadow-sm border border-navy-200/50`}>
               {step.icon}
             </div>
             
-            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-zinc-900 mb-6 uppercase">
+            <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-navy-900 mb-6 uppercase">
               {step.title}
             </h1>
             
-            <p className="text-lg text-zinc-500 font-medium leading-relaxed mb-12">
+            <p className="text-lg text-navy-500 font-medium leading-relaxed mb-12">
               {step.description}
             </p>
 
             <div className="grid grid-cols-1 gap-4 mb-12">
-               <div className="bg-white p-4 rounded-2xl border border-zinc-200 flex items-center gap-4 text-left">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">Ready for Enterprise Integration</span>
+               <div className="bg-white p-4 rounded-2xl border border-navy-200 flex items-center gap-4 text-left">
+                  <CheckCircle2 className="w-5 h-5 text-gold-500" />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-navy-500">Ready for Enterprise Integration</span>
                </div>
             </div>
           </motion.div>
@@ -115,7 +115,7 @@ export const Onboarding = () => {
             <Button 
                 variant="ghost" 
                 onClick={handleBack}
-                className="text-xs font-black uppercase tracking-widest gap-2 text-zinc-400 hover:text-zinc-900"
+                className="text-xs font-black uppercase tracking-widest gap-2 text-navy-400 hover:text-navy-900"
             >
               <ArrowLeft className="w-4 h-4" /> {currentStep === 0 ? 'Exit' : 'Back'}
             </Button>
@@ -124,14 +124,14 @@ export const Onboarding = () => {
               {STEPS.map((_, i) => (
                 <div 
                   key={i} 
-                  className={`w-1.5 h-1.5 rounded-full transition-colors ${i === currentStep ? 'bg-zinc-900' : 'bg-zinc-200'}`}
+                  className={`w-1.5 h-1.5 rounded-full transition-colors ${i === currentStep ? 'bg-gold-500' : 'bg-navy-200'}`}
                 />
               ))}
             </div>
 
             <Button 
                 onClick={handleNext}
-                className="bg-zinc-900 text-white text-xs font-black uppercase tracking-widest px-8 h-12 rounded-xl group"
+                className="bg-gold-500 text-navy-950 text-xs font-black uppercase tracking-widest px-8 h-12 rounded-xl group hover:bg-gold-400"
             >
               {currentStep === STEPS.length - 1 ? 'Start System' : 'Next'} 
               <ChevronRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
@@ -141,8 +141,8 @@ export const Onboarding = () => {
       </div>
 
       {/* Decorative Branding */}
-      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 pointer-events-none opacity-10">
-        <span className="text-8xl font-black tracking-[1em] text-zinc-900 select-none">VMSPRO</span>
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 pointer-events-none opacity-5">
+        <span className="text-8xl font-black tracking-[1em] text-navy-900 select-none">ACTIVEPRO</span>
       </div>
     </div>
   );
