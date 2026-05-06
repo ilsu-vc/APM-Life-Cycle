@@ -6,3 +6,9 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Data files (ignored to remove untracked status)
+Inventory-Data-2025-for-Capstone.xlsx
+PL-01-2025.csv
+PL-02-2025.csv
+PL-03-2025.csv
