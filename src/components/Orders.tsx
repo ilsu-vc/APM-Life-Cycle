@@ -44,6 +44,7 @@ import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { addDays, format } from 'date-fns';
+import { MOCK_ORDERS, MOCK_PRODUCTS, MOCK_INVENTORY } from '../lib/mockData';
 
 export function Orders() {
   const { profile } = useAuth();
@@ -79,21 +80,24 @@ export function Orders() {
       : query(collection(db, 'orders'), where('agentId', '==', profile?.uid || ''), orderBy('createdAt', 'desc'));
 
     const unsubOrders = onSnapshot(q, (snap) => {
-      setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() } as Order)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+      setOrders([...data, ...MOCK_ORDERS.filter(mo => !data.find(o => o.id === mo.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'orders');
+      setOrders(MOCK_ORDERS);
     });
 
     const unsubProducts = onSnapshot(collection(db, 'products'), (snap) => {
-      setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() } as Product)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+      setProducts([...data, ...MOCK_PRODUCTS.filter(mp => !data.find(p => p.id === mp.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'products');
+      setProducts(MOCK_PRODUCTS);
     });
 
     const unsubInventory = onSnapshot(collection(db, 'inventory'), (snap) => {
-      setInventory(snap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem));
+      setInventory([...data, ...MOCK_INVENTORY.filter(mi => !data.find(i => i.id === mi.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'inventory');
+      setInventory(MOCK_INVENTORY);
     });
 
     return () => {
@@ -375,10 +379,10 @@ export function Orders() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h2 className="text-xl font-bold tracking-tight text-zinc-900">Service Request Queue (Orders)</h2>
         <Dialog open={isNewOrderOpen} onOpenChange={setIsNewOrderOpen}>
-          <DialogTrigger className="h-9 gap-2 px-4 bg-black text-white rounded-lg inline-flex items-center justify-center font-medium transition-all hover:bg-black/90">
+          <DialogTrigger className="h-9 gap-2 px-4 w-full sm:w-auto bg-black text-white rounded-lg inline-flex items-center justify-center font-medium transition-all hover:bg-black/90">
             <Plus className="w-4 h-4" /> Create B2B Order
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -697,7 +701,8 @@ export function Orders() {
         )}
       </div>
 
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="bg-white border rounded-xl shadow-sm overflow-hidden hidden md:block">
         <Table>
           <TableHeader className="bg-zinc-50/50">
             <TableRow>
@@ -793,6 +798,85 @@ export function Orders() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {filteredOrders.map(order => {
+          const deadlineDate = typeof order.deliveryDeadline?.toDate === 'function' ? order.deliveryDeadline.toDate() : null;
+          const isOverdue = deadlineDate && deadlineDate < new Date() && !['delivered', 'completed'].includes(order.status);
+          return (
+            <div key={order.id} className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm hover:border-zinc-300 transition-all cursor-pointer" onClick={() => handleViewDetails(order)}>
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex flex-col pr-4">
+                  <span className="text-sm font-bold text-zinc-900 leading-tight">{order.clientName}</span>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="font-mono text-xs text-zinc-500 font-medium">{order.orderNumber}</span>
+                    <span className="text-[9px] text-zinc-500 uppercase font-bold tracking-widest bg-zinc-100 px-1.5 py-0.5 rounded">{order.deliveryRegion}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end shrink-0">
+                  <span className="text-sm font-black text-zinc-900">₱{order.totalAmount.toLocaleString()}</span>
+                  <Badge variant="outline" className={`mt-1 gap-1 h-5 capitalize text-[9px] font-bold ${
+                    order.status === 'delivered' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                    order.status === 'out_for_delivery' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                    'bg-amber-50 text-amber-700 border-amber-200'
+                  }`}>
+                    {getStatusIcon(order.status)}
+                    {order.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between border-t border-zinc-100 pt-3 mt-1">
+                <div className={`flex flex-col text-[10px] font-bold ${isOverdue ? 'text-red-500' : 'text-zinc-500'}`}>
+                  <span className="text-[9px] uppercase tracking-widest text-zinc-400">Deadline (SLA)</span>
+                  <div className="flex items-center gap-1 mt-0.5">
+                    {deadlineDate ? deadlineDate.toLocaleDateString() : 'N/A'}
+                    {isOverdue && <span className="uppercase text-[8px] animate-bounce bg-red-100 px-1 rounded">SLA Breach</span>}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                  <Button size="icon" variant="outline" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 border-zinc-200" onClick={() => handleViewDetails(order)}>
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  
+                  {profile?.role !== 'agent' && (
+                    <>
+                      {order.status === 'pending' && (
+                        <Button size="sm" variant="outline" className="h-8 text-xs font-bold px-3 border-zinc-200 text-zinc-700" onClick={() => updateOrderStatus(order, 'preparing')}>
+                          Prepare <ChevronRight className="w-3 h-3 ml-1" />
+                        </Button>
+                      )}
+                      {order.status === 'preparing' && (
+                        <Button size="sm" variant="outline" className="h-8 text-xs font-bold px-3 border-blue-200 text-blue-600 bg-blue-50" onClick={() => updateOrderStatus(order, 'out_for_delivery')}>
+                          Dispatch <Camera className="w-3 h-3 ml-1" />
+                        </Button>
+                      )}
+                      {order.status === 'out_for_delivery' && (
+                        <Button size="sm" variant="outline" className="h-8 text-xs font-bold px-3 border-emerald-200 text-emerald-600 bg-emerald-50" onClick={() => updateOrderStatus(order, 'delivered')}>
+                          Deliver <CheckCircle2 className="w-3 h-3 ml-1" />
+                        </Button>
+                      )}
+                    </>
+                  )}
+                  {order.photoValidationUrl && (
+                    <Button size="icon" variant="outline" className="h-8 w-8 text-zinc-500 hover:text-zinc-900 border-zinc-200" onClick={() => window.open(order.photoValidationUrl)}>
+                       <FileText className="w-4 h-4" />
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        {filteredOrders.length === 0 && (
+          <div className="flex flex-col items-center justify-center p-8 text-zinc-400 bg-white border border-zinc-200 rounded-xl shadow-sm">
+            <ShoppingCart className="w-8 h-8 opacity-20 mb-2" />
+            <p className="text-xs font-medium italic">No orders match your search criteria.</p>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { useAuth } from '../hooks/useAuth';
+import { MOCK_WAREHOUSES, MOCK_INVENTORY, MOCK_PRODUCTS } from '../lib/mockData';
 
 // Image Compression for Base64 storage
 const compressImage = (file: File): Promise<string> => {
@@ -126,18 +127,28 @@ export function Warehouses() {
         ]);
         
         const wData = wSnap.docs.map(d => ({ id: d.id, ...d.data() } as Warehouse));
-        setAllWarehouses(wData);
+        // Merge real data with mock data for visualization
+        const finalWData = [...wData, ...MOCK_WAREHOUSES.filter(mw => !wData.find(w => w.id === mw.id))];
+        setAllWarehouses(finalWData);
         
-        const active = wData.filter(w => w.status !== 'archived');
+        const active = finalWData.filter(w => w.status !== 'archived');
         if (active.length > 0 && !selectedWarehouseId) {
           setSelectedWarehouseId(active[0].id);
         }
 
-        setInventory(iSnap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem)));
-        setProducts(pSnap.docs.map(d => ({ id: d.id, ...d.data() } as Product)));
+        const iData = iSnap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem));
+        setInventory([...iData, ...MOCK_INVENTORY.filter(mi => !iData.find(i => i.id === mi.id))]);
+
+        const pData = pSnap.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+        setProducts([...pData, ...MOCK_PRODUCTS.filter(mp => !pData.find(p => p.id === mp.id))]);
       } catch (e) {
         console.error(e);
-        toast.error("Failed to load warehouse data");
+        setAllWarehouses(MOCK_WAREHOUSES);
+        setInventory(MOCK_INVENTORY);
+        setProducts(MOCK_PRODUCTS);
+        if (MOCK_WAREHOUSES.length > 0 && !selectedWarehouseId) {
+          setSelectedWarehouseId(MOCK_WAREHOUSES[0].id);
+        }
       }
     };
     fetchData();

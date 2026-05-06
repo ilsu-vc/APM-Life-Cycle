@@ -64,6 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <Link
               key={item.name}
               to={item.href}
+              onClick={() => setIsMobileMenuOpen(false)}
               className={`flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                 isActive 
                   ? 'bg-gold-500/15 text-gold-400 shadow-sm' 
@@ -87,6 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Separator className="mb-4 bg-navy-800" />
         <Link 
           to="/settings"
+          onClick={() => setIsMobileMenuOpen(false)}
           className="flex items-center gap-3 px-3 py-3 mb-4 rounded-2xl hover:bg-navy-800 transition-all group relative overflow-hidden"
         >
           <div className="w-10 h-10 bg-navy-800 rounded-xl flex-shrink-0 overflow-hidden border border-navy-700 group-hover:border-gold-500 transition-colors">
@@ -164,19 +166,19 @@ export function Layout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-navy-50 flex">
       <TutorialOverlay open={isTutorialOpen} onOpenChange={setIsTutorialOpen} />
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:block w-64 fixed inset-y-0 z-50">
+      <aside className="hidden lg:block w-56 fixed inset-y-0 z-50">
         <SidebarContent />
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col lg:pl-64">
+      <div className="flex-1 flex flex-col lg:pl-56">
         <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-4 bg-white/80 backdrop-blur-md border-b border-navy-200 lg:px-8">
           <div className="lg:hidden">
             <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
               <SheetTrigger className="inline-flex shrink-0 items-center justify-center rounded-lg h-8 w-8 hover:bg-muted hover:text-foreground transition-all">
                 <Menu className="w-5 h-5" />
               </SheetTrigger>
-              <SheetContent side="left" className="p-0 w-64">
+              <SheetContent side="left" className="p-0 w-[240px] max-w-[75vw]">
                 <SidebarContent />
               </SheetContent>
             </Sheet>

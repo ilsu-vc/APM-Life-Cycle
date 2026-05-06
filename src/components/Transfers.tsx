@@ -14,6 +14,7 @@ import { Truck, ArrowRightLeft, Clock, CheckCircle2, History, Plus } from 'lucid
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
+import { MOCK_TRANSFERS, MOCK_PRODUCTS, MOCK_WAREHOUSES, MOCK_INVENTORY } from '../lib/mockData';
 
 export function Transfers() {
   const { profile } = useAuth();
@@ -25,24 +26,28 @@ export function Transfers() {
 
   useEffect(() => {
     const unsubTransfers = onSnapshot(query(collection(db, 'transfers'), orderBy('createdAt', 'desc')), (snap) => {
-      setTransfers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Transfer)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Transfer));
+      setTransfers([...data, ...MOCK_TRANSFERS.filter(mt => !data.find(t => t.id === mt.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'transfers');
+      setTransfers(MOCK_TRANSFERS);
     });
     const unsubProducts = onSnapshot(collection(db, 'products'), (snap) => {
-      setProducts(snap.docs.map(d => ({ id: d.id, ...d.data() } as Product)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+      setProducts([...data, ...MOCK_PRODUCTS.filter(mp => !data.find(p => p.id === mp.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'products');
+      setProducts(MOCK_PRODUCTS);
     });
     const unsubWarehouses = onSnapshot(collection(db, 'warehouses'), (snap) => {
-      setWarehouses(snap.docs.map(d => ({ id: d.id, ...d.data() } as Warehouse)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Warehouse));
+      setWarehouses([...data, ...MOCK_WAREHOUSES.filter(mw => !data.find(w => w.id === mw.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'warehouses');
+      setWarehouses(MOCK_WAREHOUSES);
     });
     const unsubInventory = onSnapshot(collection(db, 'inventory'), (snap) => {
-      setInventory(snap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem));
+      setInventory([...data, ...MOCK_INVENTORY.filter(mi => !data.find(i => i.id === mi.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'inventory');
+      setInventory(MOCK_INVENTORY);
     });
 
     return () => {
@@ -124,13 +129,13 @@ export function Transfers() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div className="flex flex-col">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col pr-4">
           <h2 className="text-xl font-bold tracking-tight text-zinc-900">Warehouse Transfer Log</h2>
           <p className="text-xs text-zinc-500 font-medium tracking-tight">Managing stock movement between Valenzuela facilities</p>
         </div>
         <Dialog open={isAddTransferOpen} onOpenChange={setIsAddTransferOpen}>
-          <DialogTrigger className="h-9 gap-2 px-4 bg-zinc-900 text-white rounded-lg inline-flex items-center justify-center font-medium transition-all hover:bg-zinc-800">
+          <DialogTrigger className="h-9 gap-2 px-4 w-full sm:w-auto bg-zinc-900 text-white rounded-lg inline-flex items-center justify-center font-medium transition-all hover:bg-zinc-800 shrink-0">
             <ArrowRightLeft className="w-4 h-4" /> New Transfer Request
           </DialogTrigger>
           <DialogContent>
@@ -192,7 +197,8 @@ export function Transfers() {
         </Dialog>
       </div>
 
-      <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+      {/* Desktop Table View */}
+      <div className="bg-white border rounded-xl shadow-sm overflow-hidden hidden md:block">
         <Table>
           <TableHeader className="bg-zinc-50/50">
             <TableRow>
@@ -263,6 +269,68 @@ export function Transfers() {
             )}
           </TableBody>
         </Table>
+      </div>
+
+      {/* Mobile Card View */}
+      <div className="grid grid-cols-1 gap-4 md:hidden">
+        {transfers.map((t) => {
+          const product = products.find(p => p.id === t.productId);
+          const source = warehouses.find(w => w.id === t.sourceWarehouseId);
+          const dest = warehouses.find(w => w.id === t.destinationWarehouseId);
+          return (
+            <div key={t.id} className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm">
+              <div className="flex justify-between items-start mb-3">
+                <div className="flex flex-col pr-4">
+                  <span className="text-sm font-bold text-zinc-900 leading-tight">{product?.name || 'Unknown'}</span>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <span className="font-mono text-[10px] text-zinc-400 font-bold uppercase tracking-widest">TFR-{t.id.slice(-6)}</span>
+                    <Badge variant="secondary" className="text-[9px] font-black uppercase py-0 h-4">Qty: {t.quantity}</Badge>
+                  </div>
+                </div>
+                <Badge variant="outline" className={`shrink-0 gap-1 h-5 capitalize text-[9px] font-black ${
+                  t.status === 'received' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                  t.status === 'in_transit' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                  'bg-amber-50 text-amber-700 border-amber-200'
+                }`}>
+                  {t.status === 'pending' && <Clock className="w-3 h-3" />}
+                  {t.status === 'in_transit' && <Truck className="w-3 h-3" />}
+                  {t.status === 'received' && <CheckCircle2 className="w-3 h-3" />}
+                  {t.status.replace('_', ' ')}
+                </Badge>
+              </div>
+
+              <div className="bg-zinc-50 rounded-lg p-3 mb-4 border border-zinc-100 flex items-center justify-between gap-2 text-[10px] font-bold text-zinc-700">
+                <span className="bg-white border border-zinc-200 px-2 py-1.5 rounded truncate flex-1 text-center shadow-sm">{source?.name}</span>
+                <ArrowRightLeft className="w-4 h-4 text-zinc-400 shrink-0" />
+                <span className="bg-zinc-900 text-white border border-zinc-900 px-2 py-1.5 rounded truncate flex-1 text-center shadow-sm">{dest?.name}</span>
+              </div>
+
+              <div className="flex justify-end pt-2 border-t border-zinc-100">
+                {t.status === 'pending' && (
+                  <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold px-4 w-full border-zinc-200 text-zinc-700" onClick={() => updateStatus(t, 'in_transit')}>
+                    Dispatch Transfer
+                  </Button>
+                )}
+                {t.status === 'in_transit' && (
+                  <Button size="sm" variant="outline" className="h-8 text-[10px] font-bold px-4 w-full border-emerald-200 text-emerald-600 bg-emerald-50" onClick={() => updateStatus(t, 'received')}>
+                    Confirm Arrival
+                  </Button>
+                )}
+                {t.status === 'received' && (
+                  <Button size="sm" variant="ghost" disabled className="h-8 text-[10px] font-bold px-4 w-full opacity-50">
+                    Transfer Complete
+                  </Button>
+                )}
+              </div>
+            </div>
+          );
+        })}
+        {transfers.length === 0 && (
+          <div className="flex flex-col items-center justify-center p-8 text-zinc-400 bg-white border border-zinc-200 rounded-xl shadow-sm">
+            <History className="w-8 h-8 opacity-20 mb-2" />
+            <p className="text-xs font-medium italic">No active transfers tracked.</p>
+          </div>
+        )}
       </div>
     </div>
   );

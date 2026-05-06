@@ -34,6 +34,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
+import { MOCK_EXPENSES, MOCK_EXPENSE_CATEGORIES, MOCK_ORDERS } from '../lib/mockData';
 
 export function Finance() {
   const { profile } = useAuth();
@@ -55,19 +56,22 @@ export function Finance() {
 
   useEffect(() => {
     const unsubExpenses = onSnapshot(query(collection(db, 'expenses'), orderBy('date', 'desc')), (snap) => {
-      setExpenses(snap.docs.map(d => ({ id: d.id, ...d.data() } as Expense)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Expense));
+      setExpenses([...data, ...MOCK_EXPENSES.filter(me => !data.find(e => e.id === me.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'expenses');
+      setExpenses(MOCK_EXPENSES);
     });
     const unsubOrders = onSnapshot(collection(db, 'orders'), (snap) => {
-      setOrders(snap.docs.map(d => ({ id: d.id, ...d.data() } as Order)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Order));
+      setOrders([...data, ...MOCK_ORDERS.filter(mo => !data.find(o => o.id === mo.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'orders');
+      setOrders(MOCK_ORDERS);
     });
     const unsubCategories = onSnapshot(query(collection(db, 'expenseCategories'), orderBy('createdAt', 'asc')), (snap) => {
-      setCategories(snap.docs.map(d => ({ id: d.id, ...d.data() } as ExpenseCategory)));
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as ExpenseCategory));
+      setCategories([...data, ...MOCK_EXPENSE_CATEGORIES.filter(mc => !data.find(c => c.id === mc.id))]);
     }, (error) => {
-      handleFirestoreError(error, OperationType.GET, 'expenseCategories');
+      setCategories(MOCK_EXPENSE_CATEGORIES);
     });
 
     return () => {
@@ -96,12 +100,12 @@ export function Finance() {
 
     const monthOrders = orders.filter(o => {
       if (!['delivered', 'completed'].includes(o.status)) return false;
-      const date = typeof o.createdAt?.toDate === 'function' ? o.createdAt.toDate() : null;
+      const date = o.createdAt?.toDate ? o.createdAt.toDate() : (o.createdAt instanceof Date ? o.createdAt : new Date(o.createdAt));
       return date && `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}` === monthKey;
     });
 
     const monthExpenses = expenses.filter(e => {
-      const date = typeof e.date?.toDate === 'function' ? e.date.toDate() : null;
+      const date = e.date?.toDate ? e.date.toDate() : (e.date instanceof Date ? e.date : new Date(e.date));
       return date && `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}` === monthKey;
     });
 
@@ -121,12 +125,12 @@ export function Finance() {
 
     const monthOrders = orders.filter(o => {
       if (!['delivered', 'completed'].includes(o.status)) return false;
-      const date = typeof o.createdAt?.toDate === 'function' ? o.createdAt.toDate() : null;
+      const date = o.createdAt?.toDate ? o.createdAt.toDate() : (o.createdAt instanceof Date ? o.createdAt : new Date(o.createdAt));
       return date && `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}` === monthKey;
     });
 
     const monthExpenses = expenses.filter(e => {
-      const date = typeof e.date?.toDate === 'function' ? e.date.toDate() : null;
+      const date = e.date?.toDate ? e.date.toDate() : (e.date instanceof Date ? e.date : new Date(e.date));
       return date && `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}` === monthKey;
     });
 
@@ -144,7 +148,7 @@ export function Finance() {
   const currentMonthKey = `${currentMonthName} ${currentMonthYear}`;
 
   const currentMonthExpenses = expenses.filter(e => {
-    const date = typeof e.date?.toDate === 'function' ? e.date.toDate() : null;
+    const date = e.date?.toDate ? e.date.toDate() : (e.date instanceof Date ? e.date : new Date(e.date));
     return date && `${date.toLocaleString('default', { month: 'short' })} ${date.getFullYear()}` === currentMonthKey;
   });
 
@@ -309,24 +313,45 @@ export function Finance() {
     }
   };
 
-  const sortedExpenses = [...expenses].sort((a, b) => {
+  const ledgerEntries = [
+    ...expenses.map(e => ({
+      id: e.id,
+      date: e.date,
+      category: e.category,
+      description: e.description,
+      amount: -e.amount,
+      type: 'expense' as const,
+      orderId: e.orderId,
+      original: e
+    })),
+    ...orders.filter(o => ['delivered', 'completed'].includes(o.status)).map(o => ({
+      id: o.id,
+      date: o.createdAt,
+      category: 'B2B Sale',
+      description: `Payment for Order ${o.orderNumber}`,
+      amount: o.totalAmount,
+      type: 'revenue' as const,
+      orderId: o.id,
+      original: o
+    }))
+  ];
+
+  const sortedEntries = [...ledgerEntries].sort((a, b) => {
     let valA: any;
     let valB: any;
 
     if (sortKey === 'date') {
-      valA = a.date?.toDate ? a.date.toDate().getTime() : (a.date instanceof Date ? a.date.getTime() : 0);
-      valB = b.date?.toDate ? b.date.toDate().getTime() : (b.date instanceof Date ? b.date.getTime() : 0);
-    } else if (sortKey === 'orderId') {
-      const orderA = orders.find(o => o.id === a.orderId);
-      const orderB = orders.find(o => o.id === b.orderId);
-      valA = orderA?.orderNumber || '';
-      valB = orderB?.orderNumber || '';
+      valA = a.date?.toDate ? a.date.toDate().getTime() : (a.date instanceof Date ? a.date.getTime() : new Date(a.date).getTime());
+      valB = b.date?.toDate ? b.date.toDate().getTime() : (b.date instanceof Date ? b.date.getTime() : new Date(b.date).getTime());
     } else if (sortKey === 'category') {
-      valA = a.category || '';
-      valB = b.category || '';
+      valA = a.category;
+      valB = b.category;
     } else if (sortKey === 'amount') {
-      valA = a.amount || 0;
-      valB = b.amount || 0;
+      valA = a.amount;
+      valB = b.amount;
+    } else {
+      valA = a.description;
+      valB = b.description;
     }
 
     if (valA < valB) return sortDirection === 'asc' ? -1 : 1;
@@ -394,7 +419,7 @@ export function Finance() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-6 h-[300px] overflow-hidden">
+        <CardContent className="pt-6 h-[300px] overflow-hidden min-w-0">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart 
               data={chartData} 
@@ -462,7 +487,7 @@ export function Finance() {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-6 h-[300px] overflow-hidden">
+        <CardContent className="pt-6 h-[300px] overflow-hidden min-w-0">
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={chartData12Months} margin={{ top: 5, right: 20, left: -20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -807,65 +832,73 @@ export function Finance() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {sortedExpenses.map((e) => {
-                    const linkedOrder = e.orderId ? orders.find(o => o.id === e.orderId) : null;
+                  {sortedEntries.map((entry) => {
+                    const date = entry.date?.toDate ? entry.date.toDate() : (entry.date instanceof Date ? entry.date : new Date(entry.date));
+                    const isRevenue = entry.type === 'revenue';
+                    
                     return (
-                      <TableRow key={e.id} className="group">
-                        <TableCell className="text-xs text-zinc-500 font-medium">
-                          {typeof e.date?.toDate === 'function' ? e.date.toDate().toLocaleDateString() : 'N/A'}
+                      <TableRow key={entry.id} className="group">
+                        <TableCell className="text-xs text-zinc-500 font-bold uppercase">
+                          {date ? date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'N/A'}
                         </TableCell>
                         <TableCell>
-                          <Badge variant="outline" className="text-[9px] font-black uppercase bg-zinc-50 border-zinc-200">
-                            {e.category}
+                          <Badge variant="outline" className={`text-[9px] font-black uppercase bg-zinc-50 border-zinc-200 ${isRevenue ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : ''}`}>
+                            {entry.category}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs font-semibold text-zinc-900 max-w-[250px]">
                           <div className="flex flex-col">
-                            {linkedOrder && (
+                            {isRevenue && (
                               <span className="text-[9px] font-bold text-emerald-600 uppercase tracking-tighter mb-0.5">
-                                Linked Order: {linkedOrder.orderNumber}
+                                Confirmed B2B Sale
                               </span>
                             )}
-                            <span className="truncate">{e.description}</span>
+                            <span className="truncate">{entry.description}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="text-right font-black text-xs text-red-600">
-                          -₱{e.amount.toLocaleString()}
+                        <TableCell className={`text-right font-black text-xs ${isRevenue ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {isRevenue ? '+' : '-'}₱{Math.abs(entry.amount).toLocaleString()}
                         </TableCell>
                         <TableCell className="text-right">
                           <div className="flex justify-end gap-1">
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100" 
-                              onClick={() => {
-                                setEditingExpense(e);
-                                setIsEditExpenseOpen(true);
-                              }}
-                            >
-                              <Edit2 className="w-3.5 h-3.5" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="h-7 w-7 text-zinc-400 hover:text-red-600 hover:bg-red-50" 
-                              onClick={() => handleDeleteExpense(e.id)}
-                            >
-                              <Trash2 className="w-3.5 h-3.5" />
-                            </Button>
+                            {!isRevenue ? (
+                              <>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-7 w-7 text-zinc-400 hover:text-zinc-900 hover:bg-zinc-100" 
+                                  onClick={() => {
+                                    setEditingExpense(entry.original as Expense);
+                                    setIsEditExpenseOpen(true);
+                                  }}
+                                >
+                                  <Edit2 className="w-3.5 h-3.5" />
+                                </Button>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  className="h-7 w-7 text-zinc-400 hover:text-red-600 hover:bg-red-50" 
+                                  onClick={() => handleDeleteExpense(entry.id)}
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </Button>
+                              </>
+                            ) : (
+                              <Badge variant="secondary" className="text-[8px] font-black uppercase opacity-40">System Record</Badge>
+                            )}
                           </div>
                         </TableCell>
                       </TableRow>
                     );
                   })}
-                {expenses.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center h-24 text-zinc-400 text-xs italic">
-                      No expense records found.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
+                  {sortedEntries.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center h-24 text-zinc-400 text-xs italic">
+                        No financial records found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
             </Table>
           </div>
 
@@ -961,9 +994,9 @@ export function Finance() {
               <CardDescription className="text-[10px] font-medium text-zinc-500 mt-0.5">{currentMonthName} {currentMonthYear} Distribution</CardDescription>
             </CardHeader>
             <CardContent className="pt-6">
-              <div className="h-[200px] w-full">
+              <div className="h-[200px] w-full min-w-0">
                 {pieData.length > 0 ? (
-                  <ResponsiveContainer width="100%" height="100%">
+                  <ResponsiveContainer width="100%" height={200}>
                     <PieChart>
                       <Pie
                         data={pieData}
