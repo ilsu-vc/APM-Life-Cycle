@@ -250,7 +250,7 @@ export function Inventory() {
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1">
-                      {warehouses.map(wh => (
+                      {warehouses.filter(wh => wh.status !== 'archived').map(wh => (
                         <div key={wh.id} className="flex items-center justify-between text-[10px] font-medium text-zinc-500">
                           <span>{wh.name}:</span>
                           <span className="font-bold text-zinc-700">{getStockCount(p.id, wh.id)}</span>
@@ -338,7 +338,7 @@ export function Inventory() {
 
               <div className="bg-zinc-50 rounded-lg p-3 space-y-1.5 mb-4 border border-zinc-100">
                 <div className="text-[9px] font-black uppercase tracking-widest text-zinc-400 mb-2">Warehouse Sync</div>
-                {warehouses.map(wh => (
+                {warehouses.filter(wh => wh.status !== 'archived').map(wh => (
                   <div key={wh.id} className="flex items-center justify-between text-[10px] font-medium text-zinc-500">
                     <span>{wh.name}</span>
                     <span className="font-bold text-zinc-700">{getStockCount(p.id, wh.id)}</span>

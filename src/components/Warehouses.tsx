@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Warehouse as WarehouseIcon, Plus, MapPin, Package, AlertCircle, Image as ImageIcon, Edit2, Trash2, ArchiveRestore, Clock, User as UserIcon } from 'lucide-react';
-import { collection, getDocs, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, onSnapshot, addDoc, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 import { Warehouse, InventoryItem, Product } from '../types';
 import { Button } from '@/components/ui/button';
@@ -118,40 +118,38 @@ export function Warehouses() {
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [wSnap, iSnap, pSnap] = await Promise.all([
-          getDocs(collection(db, 'warehouses')),
-          getDocs(collection(db, 'inventory')),
-          getDocs(collection(db, 'products'))
-        ]);
-        
-        const wData = wSnap.docs.map(d => ({ id: d.id, ...d.data() } as Warehouse));
-        // Merge real data with mock data for visualization
-        const finalWData = [...wData, ...MOCK_WAREHOUSES.filter(mw => !wData.find(w => w.id === mw.id))];
-        setAllWarehouses(finalWData);
-        
-        const active = finalWData.filter(w => w.status !== 'archived');
-        if (active.length > 0 && !selectedWarehouseId) {
-          setSelectedWarehouseId(active[0].id);
-        }
-
-        const iData = iSnap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem));
-        setInventory([...iData, ...MOCK_INVENTORY.filter(mi => !iData.find(i => i.id === mi.id))]);
-
-        const pData = pSnap.docs.map(d => ({ id: d.id, ...d.data() } as Product));
-        setProducts([...pData, ...MOCK_PRODUCTS.filter(mp => !pData.find(p => p.id === mp.id))]);
-      } catch (e) {
-        console.error(e);
-        setAllWarehouses(MOCK_WAREHOUSES);
-        setInventory(MOCK_INVENTORY);
-        setProducts(MOCK_PRODUCTS);
-        if (MOCK_WAREHOUSES.length > 0 && !selectedWarehouseId) {
-          setSelectedWarehouseId(MOCK_WAREHOUSES[0].id);
-        }
+    const unsubWarehouses = onSnapshot(collection(db, 'warehouses'), (snap) => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Warehouse));
+      const finalWData = [...data, ...MOCK_WAREHOUSES.filter(mw => !data.find(w => w.id === mw.id))];
+      setAllWarehouses(finalWData);
+      
+      const active = finalWData.filter(w => w.status !== 'archived');
+      if (active.length > 0 && !selectedWarehouseId) {
+        setSelectedWarehouseId(active[0].id);
       }
+    }, (error) => {
+      setAllWarehouses(MOCK_WAREHOUSES);
+    });
+
+    const unsubInventory = onSnapshot(collection(db, 'inventory'), (snap) => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as InventoryItem));
+      setInventory([...data, ...MOCK_INVENTORY.filter(mi => !data.find(i => i.id === mi.id))]);
+    }, (error) => {
+      setInventory(MOCK_INVENTORY);
+    });
+
+    const unsubProducts = onSnapshot(collection(db, 'products'), (snap) => {
+      const data = snap.docs.map(d => ({ id: d.id, ...d.data() } as Product));
+      setProducts([...data, ...MOCK_PRODUCTS.filter(mp => !data.find(p => p.id === mp.id))]);
+    }, (error) => {
+      setProducts(MOCK_PRODUCTS);
+    });
+
+    return () => {
+      unsubWarehouses();
+      unsubInventory();
+      unsubProducts();
     };
-    fetchData();
   }, []);
 
   // Ensure valid selected warehouse

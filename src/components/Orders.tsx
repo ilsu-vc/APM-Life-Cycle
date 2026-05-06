@@ -716,7 +716,7 @@ export function Orders() {
           </TableHeader>
           <TableBody>
             {filteredOrders.map(order => {
-              const deadlineDate = typeof order.deliveryDeadline?.toDate === 'function' ? order.deliveryDeadline.toDate() : null;
+              const deadlineDate = order.deliveryDeadline?.toDate ? order.deliveryDeadline.toDate() : (order.deliveryDeadline instanceof Date ? order.deliveryDeadline : (order.deliveryDeadline ? new Date(order.deliveryDeadline) : null));
               const isOverdue = deadlineDate && deadlineDate < new Date() && !['delivered', 'completed'].includes(order.status);
               return (
                 <TableRow key={order.id} className="group transition-colors">
@@ -803,7 +803,7 @@ export function Orders() {
       {/* Mobile Card View */}
       <div className="grid grid-cols-1 gap-4 md:hidden">
         {filteredOrders.map(order => {
-          const deadlineDate = typeof order.deliveryDeadline?.toDate === 'function' ? order.deliveryDeadline.toDate() : null;
+          const deadlineDate = order.deliveryDeadline?.toDate ? order.deliveryDeadline.toDate() : (order.deliveryDeadline instanceof Date ? order.deliveryDeadline : (order.deliveryDeadline ? new Date(order.deliveryDeadline) : null));
           const isOverdue = deadlineDate && deadlineDate < new Date() && !['delivered', 'completed'].includes(order.status);
           return (
             <div key={order.id} className="bg-white border border-zinc-200 rounded-xl p-4 shadow-sm hover:border-zinc-300 transition-all cursor-pointer" onClick={() => handleViewDetails(order)}>

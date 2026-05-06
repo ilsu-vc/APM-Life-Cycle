@@ -111,7 +111,8 @@ export function Dashboard() {
 
     const unsubscribeOrders = onSnapshot(ordersQuery, (snapshot) => {
       const ordersData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as Order));
-      const finalOrders = ordersData.length > 0 ? ordersData : MOCK_ORDERS;
+      // Deduplicate by ID to prevent overlap
+      const finalOrders = [...ordersData, ...MOCK_ORDERS.filter(mo => !ordersData.find(o => o.id === mo.id))];
       setOrders(finalOrders);
       
       const revenue = finalOrders
@@ -145,11 +146,11 @@ export function Dashboard() {
       try {
         const productsSnap = await getDocs(collection(db, 'products'));
         const pData = productsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() } as Product));
-        const finalProducts = pData.length > 0 ? pData : MOCK_PRODUCTS;
+        const finalProducts = [...pData, ...MOCK_PRODUCTS.filter(mp => !pData.find(p => p.id === mp.id))];
         
         const inventorySnap = await getDocs(collection(db, 'inventory'));
         const iData = inventorySnap.docs.map(doc => doc.data() as InventoryItem);
-        const finalInventory = iData.length > 0 ? iData : MOCK_INVENTORY;
+        const finalInventory = [...iData, ...MOCK_INVENTORY.filter(mi => !iData.find(i => i.id === mi.id))];
 
         const lowStock = finalProducts.filter(p => {
           const totalQty = finalInventory
