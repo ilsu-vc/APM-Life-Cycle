@@ -15,7 +15,8 @@ import {
   ShieldAlert,
   UserCog,
   Briefcase,
-  HelpCircle
+  HelpCircle,
+  QrCode
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
@@ -32,6 +33,7 @@ const navigation = [
   { name: 'Transfers', href: '/transfers', icon: Truck, roles: ['admin', 'secretary'] },
   { name: 'Warehouses', href: '/warehouses', icon: Warehouse, roles: ['admin'] },
   { name: 'Financials', href: '/finance', icon: DollarSign, roles: ['admin'] },
+  { name: 'QR Scanner', href: '/scanner', icon: QrCode, roles: ['admin', 'secretary', 'agent'] },
   { name: 'Settings', href: '/settings', icon: Settings, roles: ['admin', 'secretary', 'agent'] },
 ];
 
