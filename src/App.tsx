@@ -20,6 +20,7 @@ import { Transfers } from './components/Transfers';
 import { Warehouses } from './components/Warehouses';
 import { Settings } from './components/Settings';
 import { QRScanner } from './components/QRScanner';
+import { AIAssistant } from './components/AIAssistant';
 import { Toaster } from 'sonner';
 import { useEffect } from 'react';
 import { collection, getDocs, addDoc } from 'firebase/firestore';
@@ -119,6 +120,12 @@ function AppContent() {
       <Route path="/scanner" element={
         <ProtectedRoute allowedRoles={['admin', 'secretary', 'agent']}>
           <QRScanner />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/ai-assistant" element={
+        <ProtectedRoute allowedRoles={['admin', 'secretary', 'agent']}>
+          <AIAssistant />
         </ProtectedRoute>
       } />
 
